@@ -1,6 +1,0 @@
-INFO: [VRFC 10-2263] Analyzing Verilog file "W:/Data/Development/Vivado/panel_project_remake3_memory/panel_project_remake3_memory.sim/sim_1/synth/func/xsim/tester_func_synth.v" into library xil_defaultlib
-INFO: [VRFC 10-311] analyzing module alu16
-INFO: [VRFC 10-311] analyzing module clk_divider
-INFO: [VRFC 10-311] analyzing module seven_segment
-INFO: [VRFC 10-311] analyzing module tester
-INFO: [VRFC 10-311] analyzing module glbl

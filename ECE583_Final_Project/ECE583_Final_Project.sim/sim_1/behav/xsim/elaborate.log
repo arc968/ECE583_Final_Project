@@ -1,0 +1,17 @@
+Vivado Simulator 2019.2
+Copyright 1986-1999, 2001-2019 Xilinx, Inc. All Rights Reserved.
+Running: C:/Xilinx/Vivado/2019.2/bin/unwrapped/win64.o/xelab.exe -wto 10fe2122ad2d4aa088055f1cf7e6767d --incr --debug typical --relax --mt 2 -L xil_defaultlib -L unisims_ver -L unimacro_ver -L secureip --snapshot tester_behav xil_defaultlib.tester xil_defaultlib.glbl -log elaborate.log 
+Using 2 slave threads.
+Starting static elaboration
+Pass Through NonSizing Optimizer
+Completed static elaboration
+Starting simulation data flow analysis
+WARNING: [XSIM 43-4100] "W:/Data/Development/Vivado/panel_project_remake3_memory/panel_project_remake3_memory.sim/sim_1/behav/xsim/glbl.v" Line 6. Module glbl has a timescale but at least one module in design doesn't have timescale.
+Completed simulation data flow analysis
+Time Resolution for simulation is 1ps
+Compiling module xil_defaultlib.clk_divider(CLK_OUT_FREQ=1000)
+Compiling module xil_defaultlib.seven_segment
+Compiling module xil_defaultlib.alu16
+Compiling module xil_defaultlib.tester
+Compiling module xil_defaultlib.glbl
+Built simulation snapshot tester_behav

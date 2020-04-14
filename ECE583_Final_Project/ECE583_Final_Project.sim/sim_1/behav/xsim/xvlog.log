@@ -1,0 +1,8 @@
+INFO: [VRFC 10-2263] Analyzing Verilog file "W:/Data/Development/Vivado/panel_project_remake3_memory/panel_project_remake3_memory.srcs/sources_1/new/alu16.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module alu16
+INFO: [VRFC 10-2263] Analyzing Verilog file "W:/Data/Development/Vivado/panel_project_remake3_memory/panel_project_remake3_memory.srcs/sources_1/new/clk_divider.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module clk_divider
+INFO: [VRFC 10-2263] Analyzing Verilog file "W:/Data/Development/Vivado/panel_project_remake3_memory/panel_project_remake3_memory.srcs/sources_1/new/seven_segment.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module seven_segment
+INFO: [VRFC 10-2263] Analyzing Verilog file "W:/Data/Development/Vivado/panel_project_remake3_memory/panel_project_remake3_memory.srcs/sources_1/new/tester.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tester

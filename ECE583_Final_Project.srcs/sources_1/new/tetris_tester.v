@@ -44,15 +44,16 @@ module tetris_tester(
     wire [PIXEL_NUM_BITS-1:0] buf_write_data;
     wire buf_write_signal;
    
-    wire buf_read_sel;
-    wire buf_write_sel;
+    wire [1:0] buf_clear_sel;
+    wire [1:0] buf_read_sel;
+    wire [1:0] buf_write_sel;
     
     wire serial_data_rx_ready_signal;
     wire [DATA_BITS-1:0] serial_data_rx;
     
-    serial_rx s0(CLK, RESET, UART_RX, serial_data_rx, serial_data_rx_ready_signal);
+    //serial_rx s0(CLK, RESET, UART_RX, serial_data_rx, serial_data_rx_ready_signal);
     
-    buffer_manager #(.DATA_SIZE(PIXEL_NUM_BITS), .BUFFER_SIZE(PIXEL_COUNT)) bm0(CLK, buf_write_sel, buf_write_addr, buf_write_data, buf_write_signal, buf_read_sel, buf_read_addr_0, buf_read_data_0, buf_read_addr_1, buf_read_data_1);    
+    buffer_manager #(.DATA_SIZE(PIXEL_NUM_BITS), .BUFFER_SIZE(PIXEL_COUNT)) bm0(CLK, buf_clear_sel, buf_write_sel, buf_write_addr, buf_write_data, buf_write_signal, buf_read_sel, buf_read_addr_0, buf_read_data_0, buf_read_addr_1, buf_read_data_1);    
     
     panel p0(CLK, buf_read_data_0, buf_read_addr_0, buf_read_data_1, buf_read_addr_1, JB[0], JB[1]);
     

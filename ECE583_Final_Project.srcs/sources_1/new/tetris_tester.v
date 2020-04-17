@@ -5,7 +5,7 @@ module tetris_tester(
     input [4:0]BTN, // CENTER, DOWN, RIGHT, LEFT, UP
     input [15:0]SW, // LEFT : RIGHT
     input UART_RX,  // See Ref. Page 7
-    //output UART_TX, // See Ref. Page 7
+    output UART_TX, // See Ref. Page 7
     output [7:0]SSEG_CA, // See Ref. Page 15
     output [3:0]SSEG_AN, // See Ref. Page 15
     output [15:0]LED, // LEFT : RIGHT
@@ -15,8 +15,8 @@ module tetris_tester(
     //output VGA_HS, // See Ref. Page 10
     //output VGA_VS, // See Ref. Page 10
     //inout [7:0]JA, // See Ref. Page 17
-    output [7:0]JB // See Ref. Page 17
-    //inout [7:0]JC, // See Ref. Page 17
+    output [7:0]JB, // See Ref. Page 17
+    inout [7:0]JC // See Ref. Page 17
     //inout [7:0]JXADC // // See Ref. Page 17/18
 );
 
@@ -51,11 +51,19 @@ module tetris_tester(
     wire serial_data_rx_ready_signal;
     wire [DATA_BITS-1:0] serial_data_rx;
     
-    //serial_rx s0(CLK, RESET, UART_RX, serial_data_rx, serial_data_rx_ready_signal);
+    serial_rx s_rx0(CLK, RESET, UART_RX, serial_data_rx, serial_data_rx_ready_signal);
+    serial_tx s_tx0(CLK, RESET, UART_TX, serial_data_rx, serial_data_rx_ready_signal);
     
-    buffer_manager #(.DATA_SIZE(PIXEL_NUM_BITS), .BUFFER_SIZE(PIXEL_COUNT)) bm0(CLK, buf_clear_sel, buf_write_sel, buf_write_addr, buf_write_data, buf_write_signal, buf_read_sel, buf_read_addr_0, buf_read_data_0, buf_read_addr_1, buf_read_data_1);    
     
-    panel p0(CLK, buf_read_data_0, buf_read_addr_0, buf_read_data_1, buf_read_addr_1, JB[0], JB[1]);
+    wire serial_data_rx_ready_signal_1;
+    wire [DATA_BITS-1:0] serial_data_rx_1;
+    wire [1:0] serial_pass_w;
+    serial_rx s_rx1(CLK, RESET, serial_pass_w[1], serial_data_rx_1, serial_data_rx_ready_signal_1);
+    serial_tx s_tx1(CLK, RESET, serial_pass_w[0], serial_data_rx_1, serial_data_rx_ready_signal_1);
+    
+    //buffer_manager #(.DATA_SIZE(PIXEL_NUM_BITS), .BUFFER_SIZE(PIXEL_COUNT)) bm0(CLK, buf_clear_sel, buf_write_sel, buf_write_addr, buf_write_data, buf_write_signal, buf_read_sel, buf_read_addr_0, buf_read_data_0, buf_read_addr_1, buf_read_data_1);    
+    
+    //panel p0(CLK, buf_read_data_0, buf_read_addr_0, buf_read_data_1, buf_read_addr_1, JB[0], JB[1]);
     
     //wire clk_internal;
     //clk_divider #(.CLK_OUT_FREQ(10)) clk_div(CLK, clk_internal);
@@ -65,6 +73,10 @@ module tetris_tester(
     
     assign buf_write_signal = 1'b1;
     
-    tetris tetris_mod(CLK, SW[10:5], SW[4:0], buf_write_addr, buf_write_data);
+    assign JC[1:0] = serial_pass_w[1:0];
+    assign LED[15:14] = ~serial_pass_w[1:0];
+    assign LED[7:0] = serial_data_rx;
+    
+    //tetris tetris_mod(CLK, SW[10:5], SW[4:0], buf_write_addr, buf_write_data);
       
 endmodule

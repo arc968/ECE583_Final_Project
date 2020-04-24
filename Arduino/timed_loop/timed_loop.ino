@@ -1,9 +1,9 @@
 void setup() {
   noInterrupts();           // disable all interrupts
-  TCCR5A = 0; //init clear
-  TCCR5B = 0; //init clear
-  TCNT5  = 0; //init clear
-  OCR5A = 1042;            // compare match register 16MHz/256/60Hz
+  TCCR5A = 0;               //init clear
+  TCCR5B = 0;               //init clear
+  TCNT5  = 0;               //init clear
+  OCR5A = 1042;             // compare match register 16MHz/256/60Hz
   TCCR5B |= (1 << WGM12);   // CTC mode
   TCCR5B |= (1 << CS12);    // 256 prescaler 
   TIMSK5 |= (1 << OCIE5A);  // enable timer compare interrupt

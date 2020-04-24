@@ -19,7 +19,7 @@ output reg ready_signal_out
     integer i;
     always @ ( posedge clk_in ) begin
         prev_state <= cur_state;
-        ready_signal_out <= (prev_state ^ cur_state) ? 1: 0;
+        ready_signal_out <= (prev_state ^ cur_state) ? 1 : 0;
         for (i=0; i<INPUT_BITS; i=i+1) begin
             if (cur_state[i] ^ prev_state[i])
                 data_out <= (cur_state[i]) ? (i*2) : ((i*2)+1);

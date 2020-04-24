@@ -5,14 +5,14 @@ parameter INPUT_BITS = 5+16+8
 )
 (
 input clk_in,
-input [4:0]BTN,
-input [15:0]SW,
-input [7:0]JA,
+input [4:0]btn,
+input [15:0]sw,
+input [7:0]ja,
 output reg [DATA_BITS-1:0] data_out,
 output reg ready_signal_out
 );
 
-    wire [INPUT_BITS-1:0] cur_state = {BTN[4:0], SW[15:0], JA[7:0]};
+    wire [INPUT_BITS-1:0] cur_state = {btn[4:0], sw[15:0], ja[7:0]};
     reg [INPUT_BITS-1:0] prev_state;
 
     // Determine whether data needs to be sent, and determines what data to send

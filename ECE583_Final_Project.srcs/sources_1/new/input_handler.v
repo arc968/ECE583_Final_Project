@@ -12,7 +12,7 @@ output reg [DATA_BITS-1:0] data_out,
 output reg ready_signal_out
 );
 
-    wire [INPUT_BITS-1:0] cur_state = {btn[4:0], sw[15:0], ja[7:0]};
+    wire [INPUT_BITS-1:0] cur_state = {ja[7:0], sw[15:0], btn[4:0]};
     reg [INPUT_BITS-1:0] prev_state;
 
     // Determine whether data needs to be sent, and determines what data to send

@@ -39,15 +39,25 @@ output led_pin_out_1
     //assign buf_read_addr_out_1 = panel_lower_addr + (PIXEL_COUNT/2); //no row reversing
     
     //final address translation
-    assign buf_read_addr_out_0 = (((((panel_upper_addr_tmp_w - 1)/PANEL_WIDTH) % 2) == 0) ? panel_upper_addr_tmp_w : panel_upper_addr_tmp_w + PANEL_WIDTH - ((panel_upper_addr_tmp_w%PANEL_WIDTH)*2) + 1);
-    assign buf_read_addr_out_1 = (((((panel_lower_addr_tmp_w - 1)/PANEL_WIDTH) % 2) == 0) ? panel_lower_addr_tmp_w : panel_lower_addr_tmp_w + PANEL_WIDTH - ((panel_lower_addr_tmp_w%PANEL_WIDTH)*2) + 1);
+    assign buf_read_addr_out_0 = (((((panel_upper_addr_tmp_w)/PANEL_WIDTH) % 2) == 0) ? panel_upper_addr_tmp_w : panel_upper_addr_tmp_w + (PANEL_WIDTH - (((panel_upper_addr_tmp_w%PANEL_WIDTH)*2) + 1)));
+    assign buf_read_addr_out_1 = (((((panel_lower_addr_tmp_w)/PANEL_WIDTH) % 2) == 0) ? panel_lower_addr_tmp_w : panel_lower_addr_tmp_w + (PANEL_WIDTH - (((panel_lower_addr_tmp_w%PANEL_WIDTH)*2) + 1)));
     
     //initial address translation
-    assign panel_upper_addr_tmp_w = (PIXEL_COUNT/2) - panel_upper_addr_w + 1; 
-    assign panel_lower_addr_tmp_w = PIXEL_COUNT - panel_lower_addr_w + 1;
+    assign panel_upper_addr_tmp_w = (PIXEL_COUNT/2) - panel_upper_addr_w; 
+    assign panel_lower_addr_tmp_w = PIXEL_COUNT - panel_lower_addr_w;
     
     //my particular LED matrix is split into two stacked 32x16 (WxH) regions, for a total of 32x32 (1024) LEDs
     ws2812b #(.LENGTH(PIXEL_COUNT/2)) panel_upper (clk_in, led_pin_out_0, panel_upper_data_w, panel_upper_addr_w);
     ws2812b #(.LENGTH(PIXEL_COUNT/2)) panel_lower (clk_in, led_pin_out_1, panel_lower_data_w, panel_lower_addr_w);
     
 endmodule
+
+/*
+//final address translation
+assign buf_read_addr_out_0 = (((((panel_upper_addr_tmp_w - 1)/PANEL_WIDTH) % 2) == 0) ? panel_upper_addr_tmp_w : panel_upper_addr_tmp_w + PANEL_WIDTH - ((panel_upper_addr_tmp_w%PANEL_WIDTH)*2) + 1);
+assign buf_read_addr_out_1 = (((((panel_lower_addr_tmp_w - 1)/PANEL_WIDTH) % 2) == 0) ? panel_lower_addr_tmp_w : panel_lower_addr_tmp_w + PANEL_WIDTH - ((panel_lower_addr_tmp_w%PANEL_WIDTH)*2) + 1);
+
+//initial address translation
+assign panel_upper_addr_tmp_w = (PIXEL_COUNT/2) - panel_upper_addr_w + 1; 
+assign panel_lower_addr_tmp_w = PIXEL_COUNT - panel_lower_addr_w + 1;
+*/

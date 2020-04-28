@@ -23,17 +23,12 @@ ISR(TIMER5_COMPA_vect) {
 }
 
 void loop() {
+  //do at 60hz
   if(!wait_for_timer){
     wait_for_timer = true;
     digitalWrite(13, led_status);
     led_status = (led_status == 1) ? 0 : 1;
   }
-  if(Serial.available() > 0){
-    byte incomingByte = Serial.read();
-    Serial3.write(incomingByte);
-  }
-  if(Serial3.available() > 0){
-    byte incomingByte = Serial3.read();
-    Serial.write(incomingByte);
-  }
+  //do continuously
+  
 }

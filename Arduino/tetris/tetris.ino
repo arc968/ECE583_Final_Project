@@ -266,6 +266,7 @@ static void setShape()
   {
     for (uint8_t j = x; j < x+8; j++)
     {
+      //FIXME indexing into mask doesnt work here
       board[j+(i*BOARD_WIDTH)] = mask[j+(i*SHAPE_WIDTH)];
       colors[j+(i*BOARD_WIDTH)] = curShape.color;
     }

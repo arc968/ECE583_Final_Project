@@ -49,9 +49,9 @@ typedef struct
 
 static uint8_t cube[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 static uint8_t rectangle[2][8] = {
-                                    {0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00},
-                                    {0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18}
-                                   };
+                                  {0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00},
+                                  {0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18}
+                                 };
 static uint8_t left_L[4][8] = {
                                 {0x00, 0x03, 0x03, 0xFF, 0xFF, 0x00, 0x00, 0x00},
                                 {0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x1E, 0x1E},
@@ -103,9 +103,9 @@ void setup() {
 
   for (int i = 0; i < 16; i++)
   {
-    uint8_t r = random(255);
-    uint8_t g = random(255);
-    uint8_t b = random(255);
+    uint8_t r = random(random(255));
+    uint8_t g = random(random(255));
+    uint8_t b = random(random(255));
     uint32_t rgb = r;
     rgb <<= 8;
     rgb += g;
@@ -217,7 +217,7 @@ void loop() {
   if (!wait_for_timer)
   {
     wait_for_timer = true;
-    if (++shiftDownCount == 63 && !STOP_F)
+    if (++shiftDownCount == 10 && !STOP_F)
     {
       // do roughly once per second
       shiftDownCount = 0;
@@ -245,12 +245,12 @@ static void shiftDown()
   {
     for (uint8_t j = x; j < x+8; j++)
     {
-      if ((mask[xMask+(yMask*SHAPE_WIDTH)] == 1 && board[j+((i+1)*BOARD_WIDTH)] == 1) || i+1 == 23)
+      if ((mask[xMask+(yMask*SHAPE_WIDTH)] == 1 && board[j+((i+1)*BOARD_WIDTH)] == 1) || i+1 == 31)
       {
         STOP_F = 1;
         goto breakout;
       }
-      if ((mask[xMask+((yMask+1)*SHAPE_WIDTH)] == 1 && board[j+((i+2)*BOARD_WIDTH)] == 1) || i+2 == 24)
+      if ((mask[xMask+((yMask+1)*SHAPE_WIDTH)] == 1 && board[j+((i+2)*BOARD_WIDTH)] == 1) || i+2 == 32)
       {
         STOP_F = 1;
         goto breakout;
@@ -437,12 +437,12 @@ static void EVENT_MOVE_DOWN()
   {
     for (uint8_t j = x; j < x+8; j++)
     {
-      if ((mask[xMask+(yMask*SHAPE_WIDTH)] == 1 && board[j+((i+1)*BOARD_WIDTH)] == 1) || i+1 == 23)
+      if ((mask[xMask+(yMask*SHAPE_WIDTH)] == 1 && board[j+((i+1)*BOARD_WIDTH)] == 1) || i+1 == 31)
       {
         STOP_F = 1;
         goto breakout;
       }
-      if ((mask[xMask+((yMask+1)*SHAPE_WIDTH)] == 1 && board[j+((i+2)*BOARD_WIDTH)] == 1) || i+2 == 24)
+      if ((mask[xMask+((yMask+1)*SHAPE_WIDTH)] == 1 && board[j+((i+2)*BOARD_WIDTH)] == 1) || i+2 == 32)
       {
         STOP_F = 1;
         goto breakout;

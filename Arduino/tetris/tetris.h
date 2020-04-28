@@ -52,11 +52,11 @@ void gpu_draw_shape(HardwareSerial &port, uint8_t x, uint8_t y, uint8_t * mask, 
 }
 
 void gpu_draw_board(HardwareSerial &port, uint8_t * board, uint8_t * colors, uint32_t * COLOR_LIST){
-  for(int x=0; x<4; x++){
-    for(int y=0; y<4; y++){
+  for(int y=0; y<4; y++){
+    for(int x=0; x<4; x++){
       uint64_t mask[16];
-      for(int xx=0; xx<8; xx++){
-        for(int yy=0; yy<8; yy++){
+      for(int yy=0; yy<8; yy++){
+        for(int xx=0; xx<8; xx++){
           for(int i=0; i<16; i++){
             if(board[(xx+(x*8))+((yy+(y*8))*32)] == 1 && colors[(xx+(x*8))+((yy+(y*8))*32)] == i){
               mask[i] = (mask[i] << 1) | 0x1;

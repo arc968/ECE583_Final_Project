@@ -72,7 +72,6 @@ void gpu_draw_board(HardwareSerial &port, uint8_t * board, uint8_t * colors, uin
           temp_mask[ii] = mask[i]>>((7-ii)*8);
         }
         gpu_load_mask(port, i, temp_mask);
-        //gpu_load_color(port, i, 0xFF, 0xFF, 0xFF);
         gpu_load_color(port, i, (COLOR_LIST[i]>>16)&0xFF, (COLOR_LIST[i]>>8)&0xFF, (COLOR_LIST[i]>>0)&0xFF);
         gpu_draw(port, i, x*8, y*8);
       }

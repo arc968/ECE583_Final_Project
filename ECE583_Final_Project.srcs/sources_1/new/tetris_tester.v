@@ -56,11 +56,11 @@ module tetris_tester(
     wire [7:0] gpu_spr_select_w;
     wire [63:0] gpu_data_w;
     
-    //assign LED[7:0] = serial_data_rx;
-    //assign LED[8] = gpu_command_start_signal_w;
-    //assign LED[12:9] = gpu_command_w;
-    //assign LED[15] = ~serial_data_rx_ready_signal;
-    //assign LED[14] = gpu_working_status_w;
+    assign LED[7:0] = serial_data_rx;
+    assign LED[8] = gpu_command_start_signal_w;
+    assign LED[12:9] = gpu_command_w;
+    assign LED[15] = ~serial_data_rx_ready_signal;
+    assign LED[14] = gpu_working_status_w;
     
     //wire clk_buffer_manager;
     //clk_divider #(.CLK_OUT_FREQ(25_000_000)) clk_div0(CLK, clk_buffer_manager);

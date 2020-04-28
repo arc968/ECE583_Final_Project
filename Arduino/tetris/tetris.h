@@ -47,7 +47,7 @@ void gpu_brightness(HardwareSerial &port, uint8_t val){
 
 void gpu_draw_shape(HardwareSerial &port, uint8_t x, uint8_t y, uint8_t * mask, uint8_t color, uint32_t * COLOR_LIST){
   gpu_load_mask(port, 0, mask);
-  gpu_load_color(port, 0, (COLOR_LIST[i]>>16)&0xFF, (COLOR_LIST[i]>>8)&0xFF, (COLOR_LIST[i]>>0)&0xFF);
+  gpu_load_color(port, 0, (COLOR_LIST[color]>>16)&0xFF, (COLOR_LIST[color]>>8)&0xFF, (COLOR_LIST[color]>>0)&0xFF);
   gpu_draw(port, 0, x, y);
 }
 
@@ -69,11 +69,11 @@ void gpu_draw_board(HardwareSerial &port, uint8_t * board, uint8_t * colors, uin
       for(int i=0; i<16; i++){
         uint8_t temp_mask[8];
         for(int ii=0; ii<8; ii++){
-          temp_mask[ii] = mask[i]>>(7-ii);
+          temp_mask[ii] = mask[i]>>((7-ii)*8);
         }
         gpu_load_mask(port, i, temp_mask);
         gpu_load_color(port, i, (COLOR_LIST[i]>>16)&0xFF, (COLOR_LIST[i]>>8)&0xFF, (COLOR_LIST[i]>>0)&0xFF);
-        gpu_draw(port, i, x, y);
+        gpu_draw(port, i, x*8, y*8);
       }
     }
   }

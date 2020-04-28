@@ -31,7 +31,7 @@ void setup() {
   gpu_load_mask(Serial3, 3, mask2);
   gpu_load_color(Serial3, 3, 255, 0, 0);
 
-  uint8_t mask_big_pixel[8] = {0x90, 0x90, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+  uint8_t mask_big_pixel[8] = {0xC0, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
   gpu_load_mask(Serial3, 98, mask_big_pixel);
   gpu_load_color(Serial3, 98, 0, 0, 0);
   
@@ -58,13 +58,20 @@ void loop() {
     wait_for_timer = true;
     frame++;
     //do at 60hz
+  
     for(int x=0; x<32; x+=2){
       for(int y=0; y<32; y+=2){
-        gpu_load_color(Serial3, 98, x*2, 0, y*2);
-        gpu_draw(Serial3, 98, x+frame, y+frame);
+        gpu_load_color(Serial3, 98, x+frame, 0, y+frame);
+        gpu_draw(Serial3, 98, x, y);
       }
     }
+
+    //gpu_draw(Serial3, 1, 16, 16);
+    //gpu_draw(Serial3, 2, 16, 16);
+
+    //gpu_draw(Serial3, 100, 0, 28);
     fpga_next_buffer(Serial3);
+    //delay(100);
   }
   
   /*

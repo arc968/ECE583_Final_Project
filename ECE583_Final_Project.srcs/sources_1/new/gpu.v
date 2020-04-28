@@ -39,7 +39,7 @@ reg [63:0] data_reg;
 
 reg [$clog2(PANEL_WIDTH)-1:0] x_reg;
 reg [$clog2(PANEL_HEIGHT)-1:0] y_reg;
-reg [$clog2(SPRITE_PIXEL_COUNT):0] draw_count_reg; //intentionally not n-1
+//reg [$clog2(SPRITE_PIXEL_COUNT):0] draw_count_reg; //intentionally not n-1
 
 reg [63:0] mask_reg;
 reg [23:0] color_reg;
@@ -57,10 +57,10 @@ reg [7:0] brightness_reg;
 
 reg wait_reg;
 
-reg [5:0] mask_counter_reg;
+//reg [5:0] mask_counter_reg;
 
-reg [$clog2(SPRITE_SIZE)-1:0] tmp_x_reg;
-reg [$clog2(SPRITE_SIZE)-1:0] tmp_y_reg;
+reg [7:0] tmp_x_reg;
+reg [7:0] tmp_y_reg;
 
 always @ (posedge clk_in) begin
     if (wait_reg == 1 && working_status_signal_out == 0) begin
@@ -77,7 +77,7 @@ always @ (posedge clk_in) begin
         x_reg <= data_in[15:8];
         y_reg <= data_in[7:0];
         mask_reg <= mask_ram[spr_select_in];
-        mask_counter_reg <= 6'd63;
+        //mask_counter_reg <= 6'd63;
         color_reg <= (brightness_reg == 0) ? 24'b0 : {red_w, green_w, blue_w};
     end
     else if (working_status_signal_out == 1) begin
@@ -98,17 +98,17 @@ always @ (posedge clk_in) begin
                 working_status_signal_out <= 0;
             end
             DRAW: begin
-                if (draw_count_reg == SPRITE_PIXEL_COUNT) begin
-                    draw_count_reg <= 0;
+                if (tmp_y_reg == SPRITE_SIZE || (y_reg + tmp_y_reg) == PANEL_HEIGHT) begin
+                    //draw_count_reg <= 0;
                     working_status_signal_out <= 0;
                     tmp_x_reg <= 0;
                     tmp_y_reg <= 0;
                     write_enable_signal_out <= 0;
                 end
                 else begin
-                    draw_count_reg <= draw_count_reg + 1;
+                    //draw_count_reg <= draw_count_reg + 1;
                     
-                    if (tmp_x_reg == SPRITE_SIZE-1) begin
+                    if (tmp_x_reg == SPRITE_SIZE-1 || (x_reg + tmp_x_reg) == PANEL_WIDTH-1) begin
                         tmp_x_reg <= 0;
                         tmp_y_reg <= tmp_y_reg + 1;
                     end
@@ -116,8 +116,8 @@ always @ (posedge clk_in) begin
                         tmp_x_reg <= tmp_x_reg + 1;
                     end
                     
-                    write_enable_signal_out <= mask_reg[mask_counter_reg];
-                    mask_counter_reg <= mask_counter_reg - 1;
+                    write_enable_signal_out <= mask_reg[6'd63 - (tmp_x_reg + (tmp_y_reg*SPRITE_SIZE))];
+                    //mask_counter_reg <= mask_counter_reg - 1;
                     
                     write_addr_out <= (x_reg + tmp_x_reg) + ((y_reg + tmp_y_reg)*PANEL_WIDTH);
                     write_data_out <= color_reg;

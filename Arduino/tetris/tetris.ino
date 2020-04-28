@@ -49,8 +49,8 @@ typedef struct
 
 static uint8_t cube[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 static uint8_t rectangle[2][8] = {
-                                  {0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00},
-                                  {0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18}
+                                  {0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00},
+                                  {0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18}
                                  };
 static uint8_t left_L[4][8] = {
                                 {0x00, 0x03, 0x03, 0xFF, 0xFF, 0x00, 0x00, 0x00},
@@ -245,12 +245,12 @@ static void shiftDown()
   {
     for (uint8_t j = x; j < x+8; j++)
     {
-      if ((mask[xMask+(yMask*SHAPE_WIDTH)] == 1 && board[j+((i+1)*BOARD_WIDTH)] == 1) || i == 32)
+      if ((mask[xMask+(yMask*SHAPE_WIDTH)] == 1 && board[j+((i+1)*BOARD_WIDTH)] == 1) || i == 31)
       {
         STOP_F = 1;
         goto breakout;
       }
-      if ((mask[xMask+((yMask+1)*SHAPE_WIDTH)] == 1 && board[j+((i+2)*BOARD_WIDTH)] == 1) || i == 32)
+      if ((mask[xMask+((yMask+1)*SHAPE_WIDTH)] == 1 && board[j+((i+2)*BOARD_WIDTH)] == 1) || i+1 == 32)
       {
         STOP_F = 1;
         goto breakout;
@@ -437,12 +437,12 @@ static void EVENT_MOVE_DOWN()
   {
     for (uint8_t j = x; j < x+8; j++)
     {
-      if ((mask[xMask+(yMask*SHAPE_WIDTH)] == 1 && board[j+((i+1)*BOARD_WIDTH)] == 1) || i == 32)
+      if ((mask[xMask+(yMask*SHAPE_WIDTH)] == 1 && board[j+((i+1)*BOARD_WIDTH)] == 1) || i == 31)
       {
         STOP_F = 1;
         goto breakout;
       }
-      if ((mask[xMask+((yMask+1)*SHAPE_WIDTH)] == 1 && board[j+((i+2)*BOARD_WIDTH)] == 1) || i == 32)
+      if ((mask[xMask+((yMask+1)*SHAPE_WIDTH)] == 1 && board[j+((i+2)*BOARD_WIDTH)] == 1) || i+1 == 32)
       {
         STOP_F = 1;
         goto breakout;

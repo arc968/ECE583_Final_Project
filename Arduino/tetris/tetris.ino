@@ -283,10 +283,11 @@ static void setShape()
   {
     for (uint8_t j = x; j < x+8; j++)
     {
-      board[j+(i*BOARD_WIDTH)] = (mask[yMask]>>(7-xMask)&0x1);
+      board[j+(i*BOARD_WIDTH)] = ((mask[yMask]>>(7-xMask))&0x1);
       colors[j+(i*BOARD_WIDTH)] = color;
       xMask++;
     }
+    xMask = 0;
     yMask++;
   }
 }

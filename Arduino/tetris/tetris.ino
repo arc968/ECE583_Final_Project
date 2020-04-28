@@ -1,10 +1,12 @@
 #include "tetris.h"
 
+// Constants
 #define BOARD_SIZE 1024
 #define BOARD_WIDTH 32
 #define SHAPE_WIDTH 8
 #define NUM_SELECTS 19
 
+// Input values
 #define RESTART 0x28
 #define SAVE 0x0
 #define MOVE_LEFT 0x2
@@ -32,23 +34,16 @@
 #define LEFT_Z_1 16
 #define RIGHT_Z_0 17
 #define RIGHT_Z_1 18
+#define BLANK 99
 
-typedef struct Color Color;
-struct Color
-{
-  uint8_t r;
-  uint8_t g;
-  uint8_t b;
-};
-
-typedef struct Shape Shape;
-struct Shape
+typedef struct
 {
   uint8_t select;
+  uint8_t color;
   uint8_t *mask;
   uint8_t x;
   uint8_t y;
-};
+}Shape;
 
 static uint8_t cube[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 static uint8_t rectangle[2][8] = {
@@ -83,7 +78,8 @@ static uint8_t right_Z[2][8] = {
                                 };
 // x + (y*width)
 static uint8_t board[1024];
-static uint8_t selects[1024];
+static uint8_t colors[1024];
+static uint32_t COLOR_LIST[16];
 static Shape curShape;
 static bool SAVE_F, MOVE_LEFT_F, MOVE_RIGHT_F, MOVE_DOWN_F, ROTATE_F = 0;
 static bool STOP_F = 0;
@@ -99,25 +95,49 @@ void setup() {
   TIMSK5 |= (1 << OCIE5A);  // enable timer compare interrupt
   interrupts();             // enable all interrupts
 
+//  gpu_load_color(Serial3, BLANK, 0, 0, 0);
+  
   randomSeed(analogRead(0));
 
-  uint8_t r = random(255);
-  uint8_t g = random(255);
-  uint8_t b = random(255);
+  for (int i = 0; i < 16; i++)
+  {
+    uint8_t r = random(255);
+    uint8_t g = random(255);
+    uint8_t b = random(255);
+    uint32_t rgb = r;
+    rgb <<= 8;
+    rgb += g;
+    rgb <<= 8;
+    rgb += b;
+    COLOR_LIST[i] = rgb;
+  }
+
+//  uint8_t index = random(15);
+  uint8_t index = 0;
+  uint32_t rgb = COLOR_LIST[index];
+  uint8_t r = rgb >> 16;
+  uint8_t g = ((rgb >> 8) & 0xF);
+  uint8_t b = rgb & 0xF;
   gpu_load_mask(Serial3, CUBE, cube);
   gpu_load_color(Serial3, CUBE, r, g, b);
 
-  r = random(255);
-  g = random(255);
-  b = random(255);
+//  index = random(15);
+  index = 1;
+  rgb = COLOR_LIST[index];
+  r = rgb >> 16;
+  g = ((rgb >> 8) & 0xF);
+  b = rgb & 0xF;
   gpu_load_mask(Serial3, RECTANGLE_0, rectangle[0]);
   gpu_load_mask(Serial3, RECTANGLE_1, rectangle[1]);
   gpu_load_color(Serial3, RECTANGLE_0, r, g, b);
   gpu_load_color(Serial3, RECTANGLE_1, r, g, b);
 
-  r = random(255);
-  g = random(255);
-  b = random(255);
+//  index = random(15);
+  index = 2;
+  rgb = COLOR_LIST[index];
+  r = rgb >> 16;
+  g = ((rgb >> 8) & 0xF);
+  b = rgb & 0xF;
   gpu_load_mask(Serial3, LEFT_L_0, left_L[0]);
   gpu_load_mask(Serial3, LEFT_L_1, left_L[1]);
   gpu_load_mask(Serial3, LEFT_L_2, left_L[2]);
@@ -127,9 +147,12 @@ void setup() {
   gpu_load_color(Serial3, LEFT_L_2, r, g, b);
   gpu_load_color(Serial3, LEFT_L_3, r, g, b);
 
-  r = random(255);
-  g = random(255);
-  b = random(255);
+//  index = random(15);
+  index = 3;
+  rgb = COLOR_LIST[index];
+  r = rgb >> 16;
+  g = ((rgb >> 8) & 0xF);
+  b = rgb & 0xF;
   gpu_load_mask(Serial3, RIGHT_L_0, right_L[0]);
   gpu_load_mask(Serial3, RIGHT_L_1, right_L[1]);
   gpu_load_mask(Serial3, RIGHT_L_2, right_L[2]);
@@ -139,9 +162,12 @@ void setup() {
   gpu_load_color(Serial3, RIGHT_L_2, r, g, b);
   gpu_load_color(Serial3, RIGHT_L_3, r, g, b);
 
-  r = random(255);
-  g = random(255);
-  b = random(255);
+//  index = random(15);
+  index = 4;
+  rgb = COLOR_LIST[index];
+  r = rgb >> 16;
+  g = ((rgb >> 8) & 0xF);
+  b = rgb & 0xF;
   gpu_load_mask(Serial3, T_0, T[0]);
   gpu_load_mask(Serial3, T_1, T[1]);
   gpu_load_mask(Serial3, T_2, T[2]);
@@ -151,17 +177,23 @@ void setup() {
   gpu_load_color(Serial3, T_2, r, g, b);
   gpu_load_color(Serial3, T_3, r, g, b);
 
-  r = random(255);
-  g = random(255);
-  b = random(255);
+//  index = random(15);
+  index = 5;
+  rgb = COLOR_LIST[index];
+  r = rgb >> 16;
+  g = ((rgb >> 8) & 0xF);
+  b = rgb & 0xF;
   gpu_load_mask(Serial3, LEFT_Z_0, left_Z[0]);
   gpu_load_mask(Serial3, LEFT_Z_1, left_Z[1]);
   gpu_load_color(Serial3, LEFT_Z_0, r, g, b);
   gpu_load_color(Serial3, LEFT_Z_1, r, g, b);
 
-  r = random(255);
-  g = random(255);
-  b = random(255);
+//  index = random(15);
+  index = 6;
+  rgb = COLOR_LIST[index];
+  r = rgb >> 16;
+  g = ((rgb >> 8) & 0xF);
+  b = rgb & 0xF;
   gpu_load_mask(Serial3, RIGHT_Z_0, right_Z[0]);
   gpu_load_mask(Serial3, RIGHT_Z_1, right_Z[1]);
   gpu_load_color(Serial3, RIGHT_Z_0, r, g, b);
@@ -186,18 +218,18 @@ void loop() {
     if (++shiftDownCount == 63 && !STOP_F)
     {
       // do roughly once per second
+      shiftDownCount = 0;
       shiftDown();
     }
     // do at 60hz
     clearFlags();
     execEvents();
+    gpu_draw_board(Serial3, board, colors, COLOR_LIST);
     fpga_next_buffer(Serial3);
   }
   //do continuously
 }
 
-// x + (y*width)
-//static uint32_t *board[256];
 static void shiftDown()
 {
   uint8_t x = curShape.x;
@@ -207,7 +239,7 @@ static void shiftDown()
   {
     for (uint8_t j = x; j < x+8; j++)
     {
-      if (mask[j + (i*SHAPE_WIDTH)] == 1 && board[j + ((i + 1)*BOARD_WIDTH)] == 1)
+      if ((mask[j+(i*SHAPE_WIDTH)] == 1 && board[j+((i+1)*BOARD_WIDTH)] == 1) || i+1 == 32)
       {
         STOP_F = 1;
         goto breakout;
@@ -235,7 +267,7 @@ static void setShape()
     for (uint8_t j = x; j < x+8; j++)
     {
       board[j+(i*BOARD_WIDTH)] = mask[j+(i*SHAPE_WIDTH)];
-      selects[j+(i*BOARD_WIDTH)] = curShape.select;
+      colors[j+(i*BOARD_WIDTH)] = curShape.color;
     }
   }
 }
@@ -254,30 +286,37 @@ static void setMask()
   if (select == CUBE)
   {
     curShape.mask = cube;
+    curShape.color = 0;
   }
   else if (select < LEFT_L_0)
   {
     curShape.mask = rectangle[select-1];
+    curShape.color = 1;
   }
   else if (select < RIGHT_L_0)
   {
     curShape.mask = left_L[select-3];
+    curShape.color = 2;
   }
   else if (select < T_0)
   {
     curShape.mask = right_L[select-7];
+    curShape.color = 3;
   }
   else if (select < LEFT_Z_0)
   {
     curShape.mask = T[select-11];
+    curShape.color = 4;
   }
   else if (select < RIGHT_Z_0)
   {
     curShape.mask = left_Z[select-15];
+    curShape.color = 5;
   }
   else
   {
     curShape.mask = right_Z[select-17];
+    curShape.color = 6;
   }
 }
 
@@ -334,11 +373,15 @@ static void execEvents()
 static void EVENT_RESTART()
 {
   for (uint8_t i = 0; i < BOARD_SIZE; i++)
+  {
     board[i] = 0;
+    colors[i] = 0;
+  }
 }
 
 static void EVENT_SAVE()
 {
+  return;
 }
 
 static void EVENT_MOVE_LEFT()
@@ -351,6 +394,29 @@ static void EVENT_MOVE_RIGHT()
 
 static void EVENT_MOVE_DOWN()
 {
+  uint8_t x = curShape.x;
+  uint8_t y = curShape.y;
+  uint8_t *mask = curShape.mask;
+  for (uint8_t i = y; i < y+8; i++)
+  {
+    for (uint8_t j = x; j < x+8; j++)
+    {
+      if ((mask[j + (i*SHAPE_WIDTH)] == 1 && board[j + ((i + 1)*BOARD_WIDTH)] == 1) || i+1 == 32)
+      {
+        STOP_F = 1;
+        goto breakout;
+      }
+    }
+  }
+  breakout:
+  if (STOP_F)
+  {
+    setShape();
+    genShape();
+    STOP_F = 0;
+    return;
+  }
+  curShape.y++;
 }
 
 static void EVENT_ROTATE()

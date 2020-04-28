@@ -13,7 +13,7 @@ void setup() {
   
   Serial3.begin(1000000);
 
-  gpu_brightness(Serial3, 127);
+  gpu_brightness(Serial3, 255);
 
   uint8_t mask_clear[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
   gpu_load_mask(Serial3, 0, mask_clear);

@@ -3,6 +3,7 @@
 #define BOARD_SIZE 1024
 #define BOARD_WIDTH 32
 #define SHAPE_WIDTH 8
+#define NUM_SELECTS 19
 
 #define RESTART 0x28
 #define SAVE 0x0
@@ -81,7 +82,8 @@ static uint8_t right_Z[2][8] = {
                                  {0x00, 0x30, 0x30, 0x3C, 0x3C, 0x0C, 0x0C, 0x00}
                                 };
 // x + (y*width)
-static uint32_t *board[1024];
+static uint8_t board[1024];
+static uint8_t selects[1024];
 static Shape curShape;
 static bool SAVE_F, MOVE_LEFT_F, MOVE_RIGHT_F, MOVE_DOWN_F, ROTATE_F = 0;
 static bool STOP_F = 0;
@@ -220,6 +222,7 @@ static void shiftDown()
     STOP_F = 0;
     return;
   }
+  curShape.y++;
 }
 
 static void setShape()
@@ -227,6 +230,55 @@ static void setShape()
   uint8_t x = curShape.x;
   uint8_t y = curShape.y;
   uint8_t *mask = curShape.mask;
+  for (uint8_t i = y; i < y+8; i++)
+  {
+    for (uint8_t j = x; j < x+8; j++)
+    {
+      board[j+(i*BOARD_WIDTH)] = mask[j+(i*SHAPE_WIDTH)];
+      selects[j+(i*BOARD_WIDTH)] = curShape.select;
+    }
+  }
+}
+
+static void genShape()
+{
+  curShape.x = 11;
+  curShape.y = 0;
+  curShape.select = random(NUM_SELECTS-1);
+  setMask();
+}
+
+static void setMask()
+{
+  uint8_t select = curShape.select;
+  if (select == CUBE)
+  {
+    curShape.mask = cube;
+  }
+  else if (select < LEFT_L_0)
+  {
+    curShape.mask = rectangle[select-1];
+  }
+  else if (select < RIGHT_L_0)
+  {
+    curShape.mask = left_L[select-3];
+  }
+  else if (select < T_0)
+  {
+    curShape.mask = right_L[select-7];
+  }
+  else if (select < LEFT_Z_0)
+  {
+    curShape.mask = T[select-11];
+  }
+  else if (select < RIGHT_Z_0)
+  {
+    curShape.mask = left_Z[select-15];
+  }
+  else
+  {
+    curShape.mask = right_Z[select-17];
+  }
 }
 
 static void clearFlags()
@@ -299,13 +351,6 @@ static void EVENT_MOVE_RIGHT()
 
 static void EVENT_MOVE_DOWN()
 {
-  curShape = genShape();
-}
-
-static Shape genShape()
-{
-  Shape shape;
-  return shape;
 }
 
 static void EVENT_ROTATE()

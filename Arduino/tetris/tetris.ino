@@ -257,6 +257,7 @@ static void shiftDown()
       }
       xMask++;
     }
+    xMask = 0;
     yMask++;
   }
   breakout:
@@ -450,6 +451,7 @@ static void EVENT_MOVE_DOWN()
       }
       xMask++;
     }
+    xMask = 0;
     yMask++;
   }
   breakout:

@@ -226,6 +226,7 @@ void loop() {
     // do at 60hz
     clearFlags();
     execEvents();
+    gpu_draw_shape(Serial3, curShape.x, curShape.y, curShape.mask, curShape.color, COLOR_LIST);
     gpu_draw_board(Serial3, board, colors, COLOR_LIST);
     fpga_next_buffer(Serial3);
   }
@@ -461,27 +462,6 @@ static void EVENT_MOVE_DOWN()
   curShape.y += 2;
 }
 
-// Select Defines
-//#define CUBE 0
-//#define RECTANGLE_0 1
-//#define RECTANGLE_1 2
-//#define LEFT_L_0 3
-//#define LEFT_L_1 4
-//#define LEFT_L_2 5
-//#define LEFT_L_3 6
-//#define RIGHT_L_0 7
-//#define RIGHT_L_1 8
-//#define RIGHT_L_2 9
-//#define RIGHT_L_3 10
-//#define T_0 11
-//#define T_1 12
-//#define T_2 13
-//#define T_3 14
-//#define LEFT_Z_0 15
-//#define LEFT_Z_1 16
-//#define RIGHT_Z_0 17
-//#define RIGHT_Z_1 18
-
 // Rotate shape 90 degrees clockwise
 static void EVENT_ROTATE()
 {
@@ -494,6 +474,37 @@ static void EVENT_ROTATE()
   {
     curShape.select = (select+1 == LEFT_L_0) ? select-1 : select+1;
     curShape.maskIndex++;
+    curShape.mask = rectangle[curShape.maskIndex % curShape.numMasks];
+  }
+  else if (select < RIGHT_L_0)
+  {
+    curShape.select = (select+1 == RIGHT_L_0) ? select-3 : select+1;
+    curShape.maskIndex++;
+    curShape.mask = left_L[curShape.maskIndex % curShape.numMasks];
+  }
+  else if (select < T_0)
+  {
+    curShape.select = (select+1 == T_0) ? select-3 : select+1;
+    curShape.maskIndex++;
+    curShape.mask = right_L[curShape.maskIndex % curShape.numMasks];
+  }
+  else if (select < LEFT_Z_0)
+  {
+    curShape.select = (select+1 == LEFT_Z_0) ? select-3 : select+1;
+    curShape.maskIndex++;
+    curShape.mask = T[curShape.maskIndex % curShape.numMasks];
+  }
+  else if (select < RIGHT_Z_0)
+  {
+    curShape.select = (select+1 == RIGHT_Z_0) ? select-1 : select+1;
+    curShape.maskIndex++;
+    curShape.mask = left_Z[curShape.maskIndex % curShape.numMasks];
+  }
+  else
+  {
+    curShape.select = (select+1 == RIGHT_Z_1+1) ? select-1 : select+1;
+    curShape.maskIndex++;
+    curShape.mask = right_Z[curShape.maskIndex % curShape.numMasks];
   }
 }
 

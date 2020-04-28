@@ -45,6 +45,12 @@ void gpu_brightness(HardwareSerial &port, uint8_t val){
   Serial3.write(val);
 }
 
+void gpu_draw_shape(HardwareSerial &port, uint8_t x, uint8_t y, uint8_t * mask, uint8_t color, uint32_t * COLOR_LIST){
+  gpu_load_mask(port, 0, mask);
+  gpu_load_color(port, 0, (COLOR_LIST[i]>>16)&0xFF, (COLOR_LIST[i]>>8)&0xFF, (COLOR_LIST[i]>>0)&0xFF);
+  gpu_draw(port, 0, x, y);
+}
+
 void gpu_draw_board(HardwareSerial &port, uint8_t * board, uint8_t * colors, uint32_t * COLOR_LIST){
   for(int x=0; x<4; x++){
     for(int y=0; y<4; y++){

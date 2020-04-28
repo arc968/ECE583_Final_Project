@@ -59,9 +59,9 @@ void gpu_draw_board(HardwareSerial &port, uint8_t * board, uint8_t * colors, uin
         for(int yy=0; yy<8; yy++){
           for(int i=0; i<16; i++){
             if(board[(xx+(x*8))+((yy+(y*8))*32)] == 1 && colors[(xx+(x*8))+((yy+(y*8))*32)] == i){
-              mask[i] = (mask[i] << 1) & 0x1;
+              mask[i] = (mask[i] << 1) | 0x1;
             }else{
-              mask[i] = (mask[i] << 1) & 0x0;
+              mask[i] = (mask[i] << 1) | 0x0;
             }
           }
         }
@@ -72,6 +72,7 @@ void gpu_draw_board(HardwareSerial &port, uint8_t * board, uint8_t * colors, uin
           temp_mask[ii] = mask[i]>>((7-ii)*8);
         }
         gpu_load_mask(port, i, temp_mask);
+        //gpu_load_color(port, i, 0xFF, 0xFF, 0xFF);
         gpu_load_color(port, i, (COLOR_LIST[i]>>16)&0xFF, (COLOR_LIST[i]>>8)&0xFF, (COLOR_LIST[i]>>0)&0xFF);
         gpu_draw(port, i, x*8, y*8);
       }

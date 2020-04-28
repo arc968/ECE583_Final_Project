@@ -245,12 +245,12 @@ static void shiftDown()
   {
     for (uint8_t j = x; j < x+8; j++)
     {
-      if ((mask[xMask+(yMask*SHAPE_WIDTH)] == 1 && board[j+((i+1)*BOARD_WIDTH)] == 1) || i == 31)
+      if (((mask[yMask]>>(7-xMask))&0x1) == 1 && board[j+((i+1)*BOARD_WIDTH)] == 1) || i == 31)
       {
         STOP_F = 1;
         goto breakout;
       }
-      if ((mask[xMask+((yMask+1)*SHAPE_WIDTH)] == 1 && board[j+((i+2)*BOARD_WIDTH)] == 1) || i+1 == 32)
+      if (((mask[yMask]>>(7-xMask))&0x1) == 1 && board[j+((i+2)*BOARD_WIDTH)] == 1) || i+1 == 32)
       {
         STOP_F = 1;
         goto breakout;
@@ -439,12 +439,12 @@ static void EVENT_MOVE_DOWN()
   {
     for (uint8_t j = x; j < x+8; j++)
     {
-      if ((mask[xMask+(yMask*SHAPE_WIDTH)] == 1 && board[j+((i+1)*BOARD_WIDTH)] == 1) || i == 31)
+      if (((mask[yMask]>>(7-xMask))&0x1) == 1 && board[j+((i+1)*BOARD_WIDTH)] == 1) || i == 31)
       {
         STOP_F = 1;
         goto breakout;
       }
-      if ((mask[xMask+((yMask+1)*SHAPE_WIDTH)] == 1 && board[j+((i+2)*BOARD_WIDTH)] == 1) || i+1 == 32)
+      if (((mask[yMask]>>(7-xMask))&0x1) == 1 && board[j+((i+2)*BOARD_WIDTH)] == 1) || i+1 == 32)
       {
         STOP_F = 1;
         goto breakout;

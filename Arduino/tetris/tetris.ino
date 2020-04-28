@@ -239,7 +239,7 @@ static void shiftDown()
   {
     for (uint8_t j = x; j < x+8; j++)
     {
-      if ((mask[j+(i*SHAPE_WIDTH)] == 1 && board[j+((i+1)*BOARD_WIDTH)] == 1) || i+1 == 32)
+      if ((mask[j+(i*SHAPE_WIDTH)] == 1 && board[j+((i+1)*BOARD_WIDTH)] == 1) || i+1 == 24)
       {
         STOP_F = 1;
         goto breakout;
@@ -401,7 +401,7 @@ static void EVENT_MOVE_DOWN()
   {
     for (uint8_t j = x; j < x+8; j++)
     {
-      if ((mask[j + (i*SHAPE_WIDTH)] == 1 && board[j + ((i + 1)*BOARD_WIDTH)] == 1) || i+1 == 32)
+      if ((mask[j + (i*SHAPE_WIDTH)] == 1 && board[j + ((i + 1)*BOARD_WIDTH)] == 1) || i+1 == 24)
       {
         STOP_F = 1;
         goto breakout;

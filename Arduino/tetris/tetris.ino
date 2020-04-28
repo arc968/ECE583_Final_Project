@@ -39,6 +39,8 @@
 typedef struct
 {
   uint8_t select;
+  uint8_t maskIndex;
+  uint8_t numMasks;
   uint8_t color;
   uint8_t *mask;
   uint8_t x;
@@ -230,21 +232,31 @@ void loop() {
   //do continuously
 }
 
+// Shift shape downwards and stop if bottom is reached or another shape is reached
 static void shiftDown()
 {
   uint8_t x = curShape.x;
   uint8_t y = curShape.y;
   uint8_t *mask = curShape.mask;
+  uint8_t xMask = 0;
+  uint8_t yMask = 0;
   for (uint8_t i = y; i < y+8; i++)
   {
     for (uint8_t j = x; j < x+8; j++)
     {
-      if ((mask[j+(i*SHAPE_WIDTH)] == 1 && board[j+((i+1)*BOARD_WIDTH)] == 1) || i+1 == 24)
+      if ((mask[xMask+(yMask*SHAPE_WIDTH)] == 1 && board[j+((i+1)*BOARD_WIDTH)] == 1) || i+1 == 23)
       {
         STOP_F = 1;
         goto breakout;
       }
+      if ((mask[xMask+((yMask+1)*SHAPE_WIDTH)] == 1 && board[j+((i+2)*BOARD_WIDTH)] == 1) || i+2 == 24)
+      {
+        STOP_F = 1;
+        goto breakout;
+      }
+      xMask++;
     }
+    yMask++;
   }
   breakout:
   if (STOP_F)
@@ -254,25 +266,31 @@ static void shiftDown()
     STOP_F = 0;
     return;
   }
-  curShape.y++;
+  curShape.y += 2;
 }
 
+// Set shape into the board
 static void setShape()
 {
   uint8_t x = curShape.x;
   uint8_t y = curShape.y;
   uint8_t *mask = curShape.mask;
+  uint8_t color = curShape.color;
+  uint8_t xMask = 0;
+  uint8_t yMask = 0;
   for (uint8_t i = y; i < y+8; i++)
   {
     for (uint8_t j = x; j < x+8; j++)
     {
-      //FIXME indexing into mask doesnt work here
-      board[j+(i*BOARD_WIDTH)] = mask[j+(i*SHAPE_WIDTH)];
-      colors[j+(i*BOARD_WIDTH)] = curShape.color;
+      board[j+(i*BOARD_WIDTH)] = mask[xMask+(yMask*SHAPE_WIDTH)];
+      colors[j+(i*BOARD_WIDTH)] = color;
+      xMask++;
     }
+    yMask++;
   }
 }
 
+// Generate a new shape
 static void genShape()
 {
   curShape.x = 11;
@@ -281,11 +299,14 @@ static void genShape()
   setMask();
 }
 
+// Set the mask of a shape
 static void setMask()
 {
   uint8_t select = curShape.select;
   if (select == CUBE)
   {
+    curShape.maskIndex = CUBE;
+    curShape.numMasks = 1;
     curShape.mask = cube;
     curShape.color = 0;
   }
@@ -321,6 +342,7 @@ static void setMask()
   }
 }
 
+// Clear event flags
 static void clearFlags()
 {
   SAVE_F = 0;
@@ -330,6 +352,7 @@ static void clearFlags()
   ROTATE_F = 0;
 }
 
+// Interpret input and execute events accordingly
 static void execEvents()
 {
   uint8_t buffSize = getBuffSize();
@@ -371,6 +394,7 @@ static void execEvents()
   }
 }
 
+// Reset the board
 static void EVENT_RESTART()
 {
   for (uint8_t i = 0; i < BOARD_SIZE; i++)
@@ -380,34 +404,51 @@ static void EVENT_RESTART()
   }
 }
 
+// Save current shape for later (Not implemented yet)
 static void EVENT_SAVE()
 {
   return;
 }
 
+// Move shape one block to the left
 static void EVENT_MOVE_LEFT()
 {
+  if (curShape.x >= 2)
+    curShape.x -= 2;
 }
 
+// Move shape one block to the right
 static void EVENT_MOVE_RIGHT()
 {
+  if (curShape.x <= 22)
+    curShape.x += 2;
 }
 
+// Move shape two blocks downwards
 static void EVENT_MOVE_DOWN()
 {
   uint8_t x = curShape.x;
   uint8_t y = curShape.y;
   uint8_t *mask = curShape.mask;
+  uint8_t xMask = 0;
+  uint8_t yMask = 0;
   for (uint8_t i = y; i < y+8; i++)
   {
     for (uint8_t j = x; j < x+8; j++)
     {
-      if ((mask[j + (i*SHAPE_WIDTH)] == 1 && board[j + ((i + 1)*BOARD_WIDTH)] == 1) || i+1 == 24)
+      if ((mask[xMask+(yMask*SHAPE_WIDTH)] == 1 && board[j+((i+1)*BOARD_WIDTH)] == 1) || i+1 == 23)
       {
         STOP_F = 1;
         goto breakout;
       }
+      if ((mask[xMask+((yMask+1)*SHAPE_WIDTH)] == 1 && board[j+((i+2)*BOARD_WIDTH)] == 1) || i+2 == 24)
+      {
+        STOP_F = 1;
+        goto breakout;
+      }
+      xMask++;
     }
+    yMask++;
   }
   breakout:
   if (STOP_F)
@@ -417,11 +458,43 @@ static void EVENT_MOVE_DOWN()
     STOP_F = 0;
     return;
   }
-  curShape.y++;
+  curShape.y += 2;
 }
 
+// Select Defines
+//#define CUBE 0
+//#define RECTANGLE_0 1
+//#define RECTANGLE_1 2
+//#define LEFT_L_0 3
+//#define LEFT_L_1 4
+//#define LEFT_L_2 5
+//#define LEFT_L_3 6
+//#define RIGHT_L_0 7
+//#define RIGHT_L_1 8
+//#define RIGHT_L_2 9
+//#define RIGHT_L_3 10
+//#define T_0 11
+//#define T_1 12
+//#define T_2 13
+//#define T_3 14
+//#define LEFT_Z_0 15
+//#define LEFT_Z_1 16
+//#define RIGHT_Z_0 17
+//#define RIGHT_Z_1 18
+
+// Rotate shape 90 degrees clockwise
 static void EVENT_ROTATE()
 {
+  uint8_t select = curShape.select;
+  if (select == CUBE)
+  {
+    return;
+  }
+  else if (select < LEFT_L_0)
+  {
+    curShape.select = (select+1 == LEFT_L_0) ? select-1 : select+1;
+    curShape.maskIndex++;
+  }
 }
 
 static uint8_t getBuffSize()

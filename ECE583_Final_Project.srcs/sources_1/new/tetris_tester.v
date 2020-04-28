@@ -109,11 +109,16 @@ module tetris_tester(
     wire [7:0] gpu_spr_select_w;
     wire [63:0] gpu_data_w;
     
-    assign LED[7:0] = serial_data_rx;
-    assign LED[8] = gpu_command_start_signal_w;
-    assign LED[12:9] = gpu_command_w;
-    assign LED[15] = ~serial_data_rx_ready_signal;
-    assign LED[14] = gpu_working_status_w;
+    //assign LED[7:0] = serial_data_rx;
+    //assign LED[8] = gpu_command_start_signal_w;
+    //assign LED[12:9] = gpu_command_w;
+    //assign LED[15] = ~serial_data_rx_ready_signal;
+    //assign LED[14] = gpu_working_status_w;
+    
+    //wire clk_buffer_manager;
+    //clk_divider #(.CLK_OUT_FREQ(25_000_000)) clk_div0(CLK, clk_buffer_manager);
+    //wire clk_gpu;
+    //clk_divider #(.CLK_OUT_FREQ(25_000_000)) clk_div1(CLK, clk_gpu);
     
     serial_rx s_rx0(CLK, RESET, JC[1], serial_data_rx, serial_data_rx_ready_signal); //input from Arduino
     buffer_manager #(.DATA_SIZE(PIXEL_NUM_BITS), .BUFFER_SIZE(PIXEL_COUNT)) bm0(CLK, buffer_select, buf_write_addr, buf_write_data, buf_write_signal, buf_read_addr_0, buf_read_data_0, buf_read_addr_1, buf_read_data_1);    
@@ -122,7 +127,7 @@ module tetris_tester(
     gpu gpu0(CLK, gpu_command_start_signal_w, gpu_command_w, gpu_spr_select_w, gpu_data_w, buf_write_signal, buf_write_addr, buf_write_data, gpu_working_status_w);
     
     wire clk_input_handler_internal;
-    clk_divider #(.CLK_OUT_FREQ(10_000)) clk_div(CLK, clk_input_handler_internal);
+    clk_divider #(.CLK_OUT_FREQ(10_000)) clk_div_input(CLK, clk_input_handler_internal);
     wire [DATA_BITS-1:0] input_handler_data_out_w;
     wire input_handler_ready_signal_out_w;
     input_handler ih0(clk_input_handler_internal, BTN[4:0], SW[15:0], JA[7:0], input_handler_data_out_w, input_handler_ready_signal_out_w);

@@ -44,21 +44,11 @@ reg [$clog2(SPRITE_PIXEL_COUNT):0] draw_count_reg; //intentionally not n-1
 reg [63:0] mask_reg;
 reg [23:0] color_reg;
 
-wire [23:0] color_w;
-wire [7:0] red_w;
-wire [7:0] green_w;
-wire [7:0] blue_w;
-assign color_w = color_ram[spr_select_reg];
-assign red_w = color_w[23:16]/(255/brightness_reg);
-assign green_w = color_w[15:8]/(255/brightness_reg);
-assign blue_w = color_w[7:0]/(255/brightness_reg);
-
 reg [7:0] brightness_reg;
 
-//wire addr_w;
-//assign addr_w = (x_reg + tmp_x_reg) + ((y_reg + tmp_y_reg)*PANEL_WIDTH);
-
 reg wait_reg;
+
+reg [5:0] mask_counter_reg;
 
 reg [$clog2(SPRITE_SIZE)-1:0] tmp_x_reg;
 reg [$clog2(SPRITE_SIZE)-1:0] tmp_y_reg;
@@ -78,9 +68,13 @@ always @ (posedge clk_in) begin
         x_reg <= data_in[15:8];
         y_reg <= data_in[7:0];
         mask_reg <= mask_ram[spr_select_in];
-        color_reg <= (brightness_reg == 0) ? 24'b0 : {red_w, green_w, blue_w};
+        mask_counter_reg <= 6'd63;
+        color_reg <= (brightness_reg == 0) ? 24'b0 : {color_ram[spr_select_in][23:16]/(255/brightness_reg), color_ram[spr_select_in][15:8]/(255/brightness_reg), color_ram[spr_select_in][7:0]/(255/brightness_reg)};
     end
-    else begin
+    else if (working_status_signal_out == 1) begin
+        if (command_start_signal_in == 0) begin
+            wait_reg <= 0;
+        end
         case (command_reg)
             LOAD_MASK: begin
                 mask_ram[spr_select_reg] <= data_reg;
@@ -113,10 +107,10 @@ always @ (posedge clk_in) begin
                         tmp_x_reg <= tmp_x_reg + 1;
                     end
                     
-                    write_enable_signal_out <= mask_reg[63];
-                    mask_reg <= mask_reg << 1;
+                    write_enable_signal_out <= mask_reg[mask_counter_reg];
+                    mask_counter_reg <= mask_counter_reg - 1;
                     
-                    write_addr_out <= (x_reg + tmp_x_reg) + ((y_reg + tmp_y_reg)*PANEL_WIDTH); //addr_w;
+                    write_addr_out <= (x_reg + tmp_x_reg) + ((y_reg + tmp_y_reg)*PANEL_WIDTH);
                     write_data_out <= color_reg;
                 end
             end

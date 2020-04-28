@@ -29,7 +29,6 @@ GPU_DRAW = 4'd3,
 GPU_BRIGHTNESS = 4'd4;
 
 reg [7:0] command_reg;
-//reg [63:0] data_reg;
 
 reg [7:0] state_reg;
 

@@ -44,3 +44,31 @@ void gpu_brightness(HardwareSerial &port, uint8_t val){
   Serial3.write(COMMAND_GPU_BRIGHTNESS);
   Serial3.write(val);
 }
+
+void gpu_draw_board(HardwareSerial &port, uint8_t * board, uint8_t * colors, uint32_t * COLOR_LIST){
+  for(int x=0; x<4; x++){
+    for(int y=0; y<4; y++){
+      uint64_t mask[16];
+      for(int xx=0; xx<8; xx++){
+        for(int yy=0; yy<8; yy++){
+          for(int i=0; i<16; i++){
+            if(board[(xx+(x*4))+((yy+(y*4))*32)] == 1 && colors[(xx+(x*4))+((yy+(y*4))*32)] == i){
+              mask[i] = (mask[i] << 1) & 0x1;
+            }else{
+              mask[i] = (mask[i] << 1) & 0x0;
+            }
+          }
+        }
+      }
+      for(int i=0; i<16; i++){
+        uint8_t temp_mask[8];
+        for(int ii=0; ii<8; ii++){
+          mask[i]>>(7-ii);
+        }
+        gpu_load_mask(port, i, temp_mask);
+        gpu_load_color(port, i, (COLOR_LIST[i]>>16)&0xFF, (COLOR_LIST[i]>>8)&0xFF, (COLOR_LIST[i]>>0)&0xFF);
+        gpu_draw(port, i, x, y);
+      }
+    }
+  }
+}

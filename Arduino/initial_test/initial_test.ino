@@ -61,15 +61,15 @@ void loop() {
   
     for(int x=0; x<32; x+=2){
       for(int y=0; y<32; y+=2){
-        gpu_load_color(Serial3, 98, x+frame, 0, y+frame);
-        gpu_draw(Serial3, 98, x, y);
+        //gpu_load_color(Serial3, 98, x+frame, 0, y+frame);
+        //gpu_draw(Serial3, 98, x, y);
       }
     }
 
     //gpu_draw(Serial3, 1, 16, 16);
     //gpu_draw(Serial3, 2, 16, 16);
 
-    //gpu_draw(Serial3, 100, 0, 28);
+    //gpu_draw(Serial3, 100, 31, 31);
     fpga_next_buffer(Serial3);
     //delay(100);
   }

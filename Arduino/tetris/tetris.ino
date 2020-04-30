@@ -4,7 +4,10 @@
 #define BOARD_SIZE 1024
 #define BOARD_WIDTH 32
 #define SHAPE_WIDTH 8
-#define NUM_SELECTS 19
+#define NUM_MASKS 7
+#define MASK_WIDTH 8
+#define MASK_SIZE 8
+#define NUM_COLORS 16
 
 // Input values
 #define RESTART 0x28
@@ -14,75 +17,30 @@
 #define MOVE_DOWN 0x6
 #define ROTATE 0x8
 
-// Select Defines
-#define CUBE 0
-#define RECTANGLE_0 1
-#define RECTANGLE_1 2
-#define LEFT_L_0 3
-#define LEFT_L_1 4
-#define LEFT_L_2 5
-#define LEFT_L_3 6
-#define RIGHT_L_0 7
-#define RIGHT_L_1 8
-#define RIGHT_L_2 9
-#define RIGHT_L_3 10
-#define T_0 11
-#define T_1 12
-#define T_2 13
-#define T_3 14
-#define LEFT_Z_0 15
-#define LEFT_Z_1 16
-#define RIGHT_Z_0 17
-#define RIGHT_Z_1 18
-#define BLANK 99
-
 typedef struct
 {
-  uint8_t select;
-  uint8_t maskIndex;
-  uint8_t numMasks;
   uint8_t color;
   uint8_t *mask;
   uint8_t x;
   uint8_t y;
 }Shape;
 
-static uint8_t cube[8] = {0x00, 0x00, 0x3C, 0x3C, 0x3C, 0x3C, 0x00, 0x00};
-static uint8_t rectangle[2][8] = {
-                                  {0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00},
-                                  {0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18}
-                                 };
-static uint8_t left_L[4][8] = {
-                                {0x00, 0x03, 0x03, 0xFF, 0xFF, 0x00, 0x00, 0x00},
-                                {0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x1E, 0x1E},
-                                {0x00, 0x00, 0x00, 0xFF, 0xFF, 0xC0, 0xC0, 0x00},
-                                {0x78, 0x78, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18}
-                               };
-static uint8_t right_L[4][8] = {
-                                 {0x00, 0xC0, 0xC0, 0xFF, 0xFF, 0x00, 0x00, 0x00},
-                                 {0x1E, 0x1E, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18},
-                                 {0x00, 0x00, 0x00, 0xFF, 0xFF, 0x03, 0x03, 0x00},
-                                 {0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x70, 0x70},
-                                };
-static uint8_t T[4][8] = {
-                            {0x00, 0x18, 0x18, 0x7E, 0x7E, 0x00, 0x00, 0x00},
-                            {0x00, 0x18, 0x18, 0x1E, 0x1E, 0x18, 0x18, 0x00},
-                            {0x00, 0x00, 0x00, 0x7E, 0x7E, 0x18, 0x18, 0x00},
-                            {0x00, 0x18, 0x18, 0x78, 0x78, 0x18, 0x18, 0x00}
-                           };
-static uint8_t left_Z[2][8] = {
-                                {0x00, 0x00, 0x78, 0x78, 0x1E, 0x1E, 0x00, 0x00},
-                                {0x00, 0x0C, 0x0C, 0x3C, 0x3C, 0x30, 0x30, 0x00}
-                               };
-static uint8_t right_Z[2][8] = {
-                                 {0x00, 0x00, 0x1E, 0x1E, 0x78, 0x78, 0x00, 0x00},
-                                 {0x00, 0x30, 0x30, 0x3C, 0x3C, 0x0C, 0x0C, 0x00}
-                                };
-// x + (y*width)
-static uint8_t board[1024];
-static uint8_t colors[1024];
-static uint32_t COLOR_LIST[16];
+// [index*width]
+static uint8_t masks[NUM_MASKS][8] = {
+                              {0x00, 0x00, 0x3C, 0x3C, 0x3C, 0x3C, 0x00, 0x00}, // Cube [0]
+                              {0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00}, // Rectangle [1*width]
+                              {0x00, 0x03, 0x03, 0xFF, 0xFF, 0x00, 0x00, 0x00}, // Left-facing L [2*width]
+                              {0x00, 0xC0, 0xC0, 0xFF, 0xFF, 0x00, 0x00, 0x00}, // Right-facing L [3*width]
+                              {0x00, 0x18, 0x18, 0x7E, 0x7E, 0x00, 0x00, 0x00}, // T [4*width]
+                              {0x00, 0x00, 0x78, 0x78, 0x1E, 0x1E, 0x00, 0x00}, // Left-facing Z [5*width]
+                              {0x00, 0x00, 0x1E, 0x1E, 0x78, 0x78, 0x00, 0x00}  // Right-facing Z [6*width]
+                             };
+static uint8_t board[1024];     // [x + (y*width)]
+static uint8_t colors[1024];    // [x + (y*width)]
+static uint32_t COLOR_LIST[16]; // [index]
+
 static Shape curShape;
+
 static bool SAVE_F, MOVE_LEFT_F, MOVE_RIGHT_F, MOVE_DOWN_F, ROTATE_F = 0;
 static bool STOP_F = 0;
 
@@ -114,93 +72,6 @@ void setup() {
     COLOR_LIST[i] = rgb;
   }
 
-//  uint8_t index = random(15);
-  uint8_t index = 0;
-  uint32_t rgb = COLOR_LIST[index];
-  uint8_t r = rgb >> 16;
-  uint8_t g = ((rgb >> 8) & 0xF);
-  uint8_t b = rgb & 0xF;
-  gpu_load_mask(Serial3, CUBE, cube);
-  gpu_load_color(Serial3, CUBE, r, g, b);
-
-//  index = random(15);
-  index = 1;
-  rgb = COLOR_LIST[index];
-  r = rgb >> 16;
-  g = ((rgb >> 8) & 0xF);
-  b = rgb & 0xF;
-  gpu_load_mask(Serial3, RECTANGLE_0, rectangle[0]);
-  gpu_load_mask(Serial3, RECTANGLE_1, rectangle[1]);
-  gpu_load_color(Serial3, RECTANGLE_0, r, g, b);
-  gpu_load_color(Serial3, RECTANGLE_1, r, g, b);
-
-//  index = random(15);
-  index = 2;
-  rgb = COLOR_LIST[index];
-  r = rgb >> 16;
-  g = ((rgb >> 8) & 0xF);
-  b = rgb & 0xF;
-  gpu_load_mask(Serial3, LEFT_L_0, left_L[0]);
-  gpu_load_mask(Serial3, LEFT_L_1, left_L[1]);
-  gpu_load_mask(Serial3, LEFT_L_2, left_L[2]);
-  gpu_load_mask(Serial3, LEFT_L_3, left_L[3]);
-  gpu_load_color(Serial3, LEFT_L_0, r, g, b);
-  gpu_load_color(Serial3, LEFT_L_1, r, g, b);
-  gpu_load_color(Serial3, LEFT_L_2, r, g, b);
-  gpu_load_color(Serial3, LEFT_L_3, r, g, b);
-
-//  index = random(15);
-  index = 3;
-  rgb = COLOR_LIST[index];
-  r = rgb >> 16;
-  g = ((rgb >> 8) & 0xF);
-  b = rgb & 0xF;
-  gpu_load_mask(Serial3, RIGHT_L_0, right_L[0]);
-  gpu_load_mask(Serial3, RIGHT_L_1, right_L[1]);
-  gpu_load_mask(Serial3, RIGHT_L_2, right_L[2]);
-  gpu_load_mask(Serial3, RIGHT_L_3, right_L[3]);
-  gpu_load_color(Serial3, RIGHT_L_0, r, g, b);
-  gpu_load_color(Serial3, RIGHT_L_1, r, g, b);
-  gpu_load_color(Serial3, RIGHT_L_2, r, g, b);
-  gpu_load_color(Serial3, RIGHT_L_3, r, g, b);
-
-//  index = random(15);
-  index = 4;
-  rgb = COLOR_LIST[index];
-  r = rgb >> 16;
-  g = ((rgb >> 8) & 0xF);
-  b = rgb & 0xF;
-  gpu_load_mask(Serial3, T_0, T[0]);
-  gpu_load_mask(Serial3, T_1, T[1]);
-  gpu_load_mask(Serial3, T_2, T[2]);
-  gpu_load_mask(Serial3, T_3, T[3]);
-  gpu_load_color(Serial3, T_0, r, g, b);
-  gpu_load_color(Serial3, T_1, r, g, b);
-  gpu_load_color(Serial3, T_2, r, g, b);
-  gpu_load_color(Serial3, T_3, r, g, b);
-
-//  index = random(15);
-  index = 5;
-  rgb = COLOR_LIST[index];
-  r = rgb >> 16;
-  g = ((rgb >> 8) & 0xF);
-  b = rgb & 0xF;
-  gpu_load_mask(Serial3, LEFT_Z_0, left_Z[0]);
-  gpu_load_mask(Serial3, LEFT_Z_1, left_Z[1]);
-  gpu_load_color(Serial3, LEFT_Z_0, r, g, b);
-  gpu_load_color(Serial3, LEFT_Z_1, r, g, b);
-
-//  index = random(15);
-  index = 6;
-  rgb = COLOR_LIST[index];
-  r = rgb >> 16;
-  g = ((rgb >> 8) & 0xF);
-  b = rgb & 0xF;
-  gpu_load_mask(Serial3, RIGHT_Z_0, right_Z[0]);
-  gpu_load_mask(Serial3, RIGHT_Z_1, right_Z[1]);
-  gpu_load_color(Serial3, RIGHT_Z_0, r, g, b);
-  gpu_load_color(Serial3, RIGHT_Z_1, r, g, b);
-
   genShape();
   
   Serial3.begin(1000000);
@@ -219,18 +90,27 @@ void loop() {
     wait_for_timer = true;
     if (++shiftDownCount == 10 && !STOP_F)
     {
-      // do roughly once per second
+      // Do roughly once per second
       shiftDownCount = 0;
       shiftDown();
     }
-    // do at 60hz
+    // Do at 60hz
     clearFlags();
     execEvents();
     gpu_draw_shape(Serial3, curShape.x, curShape.y, curShape.mask, curShape.color, COLOR_LIST);
     gpu_draw_board(Serial3, board, colors, COLOR_LIST);
     fpga_next_buffer(Serial3);
   }
-  //do continuously
+  // Do continuously
+}
+
+// Generate a new shape
+static void genShape()
+{
+  curShape.x = 11;
+  curShape.y = 0;
+  curShape.mask = masks[random(NUM_MASKS-1)*MASK_WIDTH];
+  curShape.color = COLOR_LIST[random(NUM_COLORS-1)];
 }
 
 // Shift shape downwards and stop if bottom is reached or another shape is reached
@@ -287,64 +167,12 @@ static void setShape()
       if (board[j+(i*BOARD_WIDTH)] != 1)
       {
         board[j+(i*BOARD_WIDTH)] = ((mask[yMask]>>(7-xMask))&0x1);
-        colors[j+(i*BOARD_WIDTH)] = color; 
+        colors[j+(i*BOARD_WIDTH)] = color;
       }
       xMask++;
     }
     xMask = 0;
     yMask++;
-  }
-}
-
-// Generate a new shape
-static void genShape()
-{
-  curShape.x = 11;
-  curShape.y = 0;
-  curShape.select = random(NUM_SELECTS-1);
-  setMask();
-}
-
-// Set the mask of a shape
-static void setMask()
-{
-  uint8_t select = curShape.select;
-  if (select == CUBE)
-  {
-    curShape.maskIndex = CUBE;
-    curShape.numMasks = 1;
-    curShape.mask = cube;
-    curShape.color = 0;
-  }
-  else if (select < LEFT_L_0)
-  {
-    curShape.mask = rectangle[select-1];
-    curShape.color = 1;
-  }
-  else if (select < RIGHT_L_0)
-  {
-    curShape.mask = left_L[select-3];
-    curShape.color = 2;
-  }
-  else if (select < T_0)
-  {
-    curShape.mask = right_L[select-7];
-    curShape.color = 3;
-  }
-  else if (select < LEFT_Z_0)
-  {
-    curShape.mask = T[select-11];
-    curShape.color = 4;
-  }
-  else if (select < RIGHT_Z_0)
-  {
-    curShape.mask = left_Z[select-15];
-    curShape.color = 5;
-  }
-  else
-  {
-    curShape.mask = right_Z[select-17];
-    curShape.color = 6;
   }
 }
 
@@ -471,47 +299,21 @@ static void EVENT_MOVE_DOWN()
 // Rotate shape 90 degrees clockwise
 static void EVENT_ROTATE()
 {
-  uint8_t select = curShape.select;
-  if (select == CUBE)
-  {
-    return;
+  uint8_t *mask = curShape.mask;
+  uint8_t rotMask[MASK_SIZE*MASK_WIDTH];
+  int height = MASK_SIZE;
+  int width = MASK_WIDTH;
+  int k = 0;
+  int l = height - 1;
+  for (int i = 0; i < height; i++) {
+      k = 0;
+      for (int j = 0; j < width; j++) {
+          rotMask[k + (l*width)] = mask[i + (j*width)];
+          k++;
+      }
+      l--;
   }
-  else if (select < LEFT_L_0)
-  {
-    curShape.select = (select+1 == LEFT_L_0) ? select-1 : select+1;
-    curShape.maskIndex++;
-    curShape.mask = rectangle[curShape.maskIndex % curShape.numMasks];
-  }
-  else if (select < RIGHT_L_0)
-  {
-    curShape.select = (select+1 == RIGHT_L_0) ? select-3 : select+1;
-    curShape.maskIndex++;
-    curShape.mask = left_L[curShape.maskIndex % curShape.numMasks];
-  }
-  else if (select < T_0)
-  {
-    curShape.select = (select+1 == T_0) ? select-3 : select+1;
-    curShape.maskIndex++;
-    curShape.mask = right_L[curShape.maskIndex % curShape.numMasks];
-  }
-  else if (select < LEFT_Z_0)
-  {
-    curShape.select = (select+1 == LEFT_Z_0) ? select-3 : select+1;
-    curShape.maskIndex++;
-    curShape.mask = T[curShape.maskIndex % curShape.numMasks];
-  }
-  else if (select < RIGHT_Z_0)
-  {
-    curShape.select = (select+1 == RIGHT_Z_0) ? select-1 : select+1;
-    curShape.maskIndex++;
-    curShape.mask = left_Z[curShape.maskIndex % curShape.numMasks];
-  }
-  else
-  {
-    curShape.select = (select+1 == RIGHT_Z_1+1) ? select-1 : select+1;
-    curShape.maskIndex++;
-    curShape.mask = right_Z[curShape.maskIndex % curShape.numMasks];
-  }
+  curShape.mask = rotMask;
 }
 
 static uint8_t getBuffSize()

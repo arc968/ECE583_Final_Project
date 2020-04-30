@@ -109,7 +109,7 @@ static void genShape()
 {
   curShape.x = 11;
   curShape.y = 0;
-  curShape.mask = masks[random(NUM_MASKS-1)+MASK_WIDTH];
+  curShape.mask = masks[random(NUM_MASKS-1)+(MASK_SIZE*MASK_WIDTH)];
   curShape.color = COLOR_LIST[random(NUM_COLORS-1)];
 }
 

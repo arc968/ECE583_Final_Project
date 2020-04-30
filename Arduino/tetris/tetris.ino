@@ -6,7 +6,7 @@
 #define SHAPE_WIDTH 8
 #define NUM_MASKS 7
 #define MASK_WIDTH 8
-#define MASK_SIZE 8
+#define MASK_SIZE MASK_WIDTH*sizeof(uint8_t)
 #define NUM_COLORS 16
 
 // Input values
@@ -26,14 +26,14 @@ typedef struct
 }Shape;
 
 // [index*width]
-static uint8_t masks[NUM_MASKS][8] = {
-                              {0x00, 0x00, 0x3C, 0x3C, 0x3C, 0x3C, 0x00, 0x00}, // Cube [0]
-                              {0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00}, // Rectangle [1*width]
-                              {0x00, 0x03, 0x03, 0xFF, 0xFF, 0x00, 0x00, 0x00}, // Left-facing L [2*width]
-                              {0x00, 0xC0, 0xC0, 0xFF, 0xFF, 0x00, 0x00, 0x00}, // Right-facing L [3*width]
-                              {0x00, 0x18, 0x18, 0x7E, 0x7E, 0x00, 0x00, 0x00}, // T [4*width]
-                              {0x00, 0x00, 0x78, 0x78, 0x1E, 0x1E, 0x00, 0x00}, // Left-facing Z [5*width]
-                              {0x00, 0x00, 0x1E, 0x1E, 0x78, 0x78, 0x00, 0x00}  // Right-facing Z [6*width]
+static uint8_t masks[NUM_MASKS*MASK_WIDTH*sizeof(uint8_t)] = {
+                              0x00, 0x00, 0x3C, 0x3C, 0x3C, 0x3C, 0x00, 0x00, // Cube [0]
+                              0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00, // Rectangle [1*width]
+                              0x00, 0x03, 0x03, 0xFF, 0xFF, 0x00, 0x00, 0x00, // Left-facing L [2*width]
+                              0x00, 0xC0, 0xC0, 0xFF, 0xFF, 0x00, 0x00, 0x00, // Right-facing L [3*width]
+                              0x00, 0x18, 0x18, 0x7E, 0x7E, 0x00, 0x00, 0x00, // T [4*width]
+                              0x00, 0x00, 0x78, 0x78, 0x1E, 0x1E, 0x00, 0x00, // Left-facing Z [5*width]
+                              0x00, 0x00, 0x1E, 0x1E, 0x78, 0x78, 0x00, 0x00  // Right-facing Z [6*width]
                              };
 static uint8_t board[1024];     // [x + (y*width)]
 static uint8_t colors[1024];    // [x + (y*width)]
@@ -109,8 +109,21 @@ static void genShape()
 {
   curShape.x = 11;
   curShape.y = 0;
-  curShape.mask = masks[random(NUM_MASKS-1)*(MASK_SIZE*MASK_WIDTH)];
   curShape.color = COLOR_LIST[random(NUM_COLORS-1)];
+  copyMask();
+}
+
+static void copyMask()
+{
+  uint8_t maskCopy[MASK_WIDTH];
+  uint8_t maskNum = random(NUM_MASKS-1);
+  uint8_t copyIndex = maskNum * MASK_WIDTH * sizeof(uint8_t);
+  for (int i=0; i<MASK_SIZE; i++)
+  {
+    maskCopy[i] = masks[copyIndex];
+    copyIndex++;
+  }
+  curShape.mask = maskCopy;
 }
 
 // Shift shape downwards and stop if bottom is reached or another shape is reached
@@ -300,8 +313,8 @@ static void EVENT_MOVE_DOWN()
 static void EVENT_ROTATE()
 {
   uint8_t *mask = curShape.mask;
-  uint8_t rotMask[MASK_SIZE*MASK_WIDTH];
-  int height = MASK_SIZE;
+  uint8_t rotMask[MASK_WIDTH*sizeof(uint8_t)];
+  int height = MASK_WIDTH;
   int width = MASK_WIDTH;
   int k = 0;
   int l = height - 1;

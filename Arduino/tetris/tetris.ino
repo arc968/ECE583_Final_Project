@@ -25,15 +25,15 @@ typedef struct
   uint8_t y;
 }Shape;
 
-// [index*width]
-static uint8_t masks[NUM_MASKS*MASK_WIDTH*sizeof(uint8_t)] = {
+// [maskNum*MASK_WIDTH]
+static uint8_t masks[NUM_MASKS*MASK_WIDTH] = {
                               0x00, 0x00, 0x3C, 0x3C, 0x3C, 0x3C, 0x00, 0x00, // Cube [0]
-                              0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00, // Rectangle [1*width]
-                              0x00, 0x03, 0x03, 0xFF, 0xFF, 0x00, 0x00, 0x00, // Left-facing L [2*width]
-                              0x00, 0xC0, 0xC0, 0xFF, 0xFF, 0x00, 0x00, 0x00, // Right-facing L [3*width]
+                              0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00, // Rectangle [1*8]
+                              0x00, 0x03, 0x03, 0xFF, 0xFF, 0x00, 0x00, 0x00, // Left-facing L [2*8]
+                              0x00, 0xC0, 0xC0, 0xFF, 0xFF, 0x00, 0x00, 0x00, // Right-facing L [3*8]
                               0x00, 0x18, 0x18, 0x7E, 0x7E, 0x00, 0x00, 0x00, // T [4*width]
-                              0x00, 0x00, 0x78, 0x78, 0x1E, 0x1E, 0x00, 0x00, // Left-facing Z [5*width]
-                              0x00, 0x00, 0x1E, 0x1E, 0x78, 0x78, 0x00, 0x00  // Right-facing Z [6*width]
+                              0x00, 0x00, 0x78, 0x78, 0x1E, 0x1E, 0x00, 0x00, // Left-facing Z [5*8]
+                              0x00, 0x00, 0x1E, 0x1E, 0x78, 0x78, 0x00, 0x00  // Right-facing Z [6*8]
                              };
 static uint8_t board[1024];     // [x + (y*width)]
 static uint8_t colors[1024];    // [x + (y*width)]
@@ -73,7 +73,8 @@ void setup() {
   }
 
   genShape();
-  
+
+  Serial.begin(1000000);
   Serial3.begin(1000000);
   fpga_next_buffer(Serial3);
 }
@@ -113,14 +114,16 @@ static void genShape()
   copyMask();
 }
 
+// Copy a random shape mask into the current shape's mask
 static void copyMask()
 {
   uint8_t maskCopy[MASK_WIDTH];
   uint8_t maskNum = random(NUM_MASKS-1);
-  uint8_t copyIndex = maskNum * MASK_WIDTH * sizeof(uint8_t);
-  for (int i=0; i<MASK_SIZE; i++)
+  uint8_t copyIndex = maskNum * MASK_WIDTH;
+  for (int i=0; i<MASK_WIDTH; i++)
   {
     maskCopy[i] = masks[copyIndex];
+//    Serial.println("maskCopy[%d]: [%d]", i, maskCopy[i]);
     copyIndex++;
   }
   curShape.mask = maskCopy;
@@ -156,7 +159,7 @@ static void shiftDown()
   breakout:
   if (STOP_F)
   {
-    setShape();
+    putShape();
     genShape();
     STOP_F = 0;
     return;
@@ -165,7 +168,7 @@ static void shiftDown()
 }
 
 // Set shape into the board
-static void setShape()
+static void putShape()
 {
   uint8_t x = curShape.x;
   uint8_t y = curShape.y;
@@ -301,7 +304,7 @@ static void EVENT_MOVE_DOWN()
   breakout:
   if (STOP_F)
   {
-    setShape();
+    putShape();
     genShape();
     STOP_F = 0;
     return;
@@ -310,6 +313,7 @@ static void EVENT_MOVE_DOWN()
 }
 
 // Rotate shape 90 degrees clockwise
+// FIXME This doesn't work as expected
 static void EVENT_ROTATE()
 {
   uint8_t *mask = curShape.mask;

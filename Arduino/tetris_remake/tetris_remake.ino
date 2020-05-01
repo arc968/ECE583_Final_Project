@@ -107,4 +107,3 @@ void loop() {
 void load_shape_to_gpu(){
   
 }
-}

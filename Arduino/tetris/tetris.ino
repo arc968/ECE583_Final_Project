@@ -25,15 +25,15 @@ typedef struct
   uint8_t y;
 }Shape;
 
-// [maskNum*MASK_WIDTH]
-static uint8_t masks[NUM_MASKS*MASK_WIDTH] = {
+// [maskNum][MASK_WIDTH]
+static uint8_t masks[NUM_MASKS][MASK_WIDTH] = {
                               0x00, 0x00, 0x3C, 0x3C, 0x3C, 0x3C, 0x00, 0x00, // Cube [0]
-                              0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00, // Rectangle [1*8]
-                              0x00, 0x03, 0x03, 0xFF, 0xFF, 0x00, 0x00, 0x00, // Left-facing L [2*8]
-                              0x00, 0xC0, 0xC0, 0xFF, 0xFF, 0x00, 0x00, 0x00, // Right-facing L [3*8]
-                              0x00, 0x18, 0x18, 0x7E, 0x7E, 0x00, 0x00, 0x00, // T [4*width]
-                              0x00, 0x00, 0x78, 0x78, 0x1E, 0x1E, 0x00, 0x00, // Left-facing Z [5*8]
-                              0x00, 0x00, 0x1E, 0x1E, 0x78, 0x78, 0x00, 0x00  // Right-facing Z [6*8]
+                              0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00, // Rectangle [1]
+                              0x00, 0x03, 0x03, 0xFF, 0xFF, 0x00, 0x00, 0x00, // Left-facing L [2]
+                              0x00, 0xC0, 0xC0, 0xFF, 0xFF, 0x00, 0x00, 0x00, // Right-facing L [3]
+                              0x00, 0x18, 0x18, 0x7E, 0x7E, 0x00, 0x00, 0x00, // T [4]
+                              0x00, 0x00, 0x78, 0x78, 0x1E, 0x1E, 0x00, 0x00, // Left-facing Z [5]
+                              0x00, 0x00, 0x1E, 0x1E, 0x78, 0x78, 0x00, 0x00  // Right-facing Z [6]
                              };
 static uint8_t board[1024];     // [x + (y*width)]
 static uint8_t colors[1024];    // [x + (y*width)]
@@ -54,8 +54,6 @@ void setup() {
   TCCR5B |= (1 << CS12);    // 256 prescaler 
   TIMSK5 |= (1 << OCIE5A);  // enable timer compare interrupt
   interrupts();             // enable all interrupts
-
-//  gpu_load_color(Serial3, BLANK, 0, 0, 0);
   
   randomSeed(analogRead(0));
 
@@ -119,12 +117,9 @@ static void copyMask()
 {
   uint8_t maskCopy[MASK_WIDTH];
   uint8_t maskNum = random(NUM_MASKS-1);
-  uint8_t copyIndex = maskNum * MASK_WIDTH;
   for (int i=0; i<MASK_WIDTH; i++)
   {
-    maskCopy[i] = masks[copyIndex];
-//    Serial.println("maskCopy[%d]: [%d]", i, maskCopy[i]);
-    copyIndex++;
+    maskCopy[i] = masks[maskNum][i];
   }
   curShape.mask = maskCopy;
 }
@@ -257,7 +252,7 @@ static void EVENT_RESTART()
 // Save current shape for later (Not implemented yet)
 static void EVENT_SAVE()
 {
-  return;
+  genShape();
 }
 
 // Move shape one block to the left

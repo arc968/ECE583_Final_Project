@@ -108,7 +108,7 @@ static void genShape()
 {
   curShape.x = 11;
   curShape.y = 0;
-  curShape.color = COLOR_LIST[random(NUM_COLORS-1)];
+  curShape.color = random(NUM_COLORS-1);
   copyMask();
 }
 

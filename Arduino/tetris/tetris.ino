@@ -37,7 +37,10 @@ static uint8_t masks[NUM_MASKS][MASK_WIDTH] = {
                              };
 static uint8_t board[1024];     // [x + (y*width)]
 static uint8_t colors[1024];    // [x + (y*width)]
-static uint32_t COLOR_LIST[16]; // [index]
+static uint32_t COLOR_LIST[16] = {0x00FFFFFF, 0x00FF0000, 0x0000FF00, 0x000000FF,
+                                  0x00FFFF00, 0x00FF00FF, 0x0000FFFF, 0x0080FF00,
+                                  0x0000FF80, 0x00FF8000, 0x00FF0080, 0x000080FF,
+                                  0x008000FF, 0x00808000, 0x00008080, 0x00800080};
 
 static Shape curShape;
 
@@ -56,19 +59,6 @@ void setup() {
   interrupts();             // enable all interrupts
   
   randomSeed(analogRead(0));
-
-  for (int i = 0; i < 16; i++)
-  {
-    uint8_t r = random(random(255));
-    uint8_t g = random(random(255));
-    uint8_t b = random(random(255));
-    uint32_t rgb = r;
-    rgb <<= 8;
-    rgb += g;
-    rgb <<= 8;
-    rgb += b;
-    COLOR_LIST[i] = rgb;
-  }
 
   genShape();
 

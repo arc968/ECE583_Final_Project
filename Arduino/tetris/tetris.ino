@@ -109,19 +109,7 @@ static void genShape()
   curShape.x = 11;
   curShape.y = 0;
   curShape.color = random(NUM_COLORS-1);
-  copyMask();
-}
-
-// Copy a random shape mask into the current shape's mask
-static void copyMask()
-{
-  uint8_t maskCopy[MASK_WIDTH];
-  uint8_t maskNum = random(NUM_MASKS-1);
-  for (int i=0; i<MASK_WIDTH; i++)
-  {
-    maskCopy[i] = masks[maskNum][i];
-  }
-  curShape.mask = maskCopy;
+  curShape.mask = masks[random(NUM_MASKS-1)];
 }
 
 // Shift shape downwards and stop if bottom is reached or another shape is reached

@@ -124,12 +124,7 @@ static void shiftDown()
   {
     for (uint8_t j = x; j < x+8; j++)
     {
-      if (((mask[yMask]>>(7-xMask))&0x1) == 1 && (board[j+((i+1)*BOARD_WIDTH)] == 1 || i == 30))
-      {
-        STOP_F = 1;
-        goto breakout;
-      }
-      if ((((mask[yMask]>>(7-xMask))&0x1) == 1 && board[j+((i+2)*BOARD_WIDTH)] == 1))
+      if (((mask[yMask]>>(7-xMask))&0x1) == 1 && (board[j+((i+1)*BOARD_WIDTH)] == 1 || board[j+((i+2)*BOARD_WIDTH)] == 1 || i >= 31))
       {
         STOP_F = 1;
         goto breakout;

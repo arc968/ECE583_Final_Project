@@ -87,7 +87,7 @@ void loop() {
   if (!wait_for_timer)
   {
     wait_for_timer = true;
-    if (++shiftDownCount == 10 && !STOP_F)
+    if (++shiftDownCount == 5 && !STOP_F)
     {
       // Do roughly once per second
       shiftDownCount = 0;
@@ -124,7 +124,7 @@ static void shiftDown()
   {
     for (uint8_t j = x; j < x+8; j++)
     {
-      if (((mask[yMask]>>(7-xMask))&0x1) == 1 && (board[j+((i+1)*BOARD_WIDTH)] == 1 || i == 31))
+      if (((mask[yMask]>>(7-xMask))&0x1) == 1 && (board[j+((i+1)*BOARD_WIDTH)] == 1 || i == 30))
       {
         STOP_F = 1;
         goto breakout;

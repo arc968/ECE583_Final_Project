@@ -37,7 +37,7 @@ static uint8_t masks[NUM_MASKS][MASK_WIDTH] = {
                              };
 static uint8_t board[1024];     // [x + (y*width)]
 static uint8_t colors[1024];    // [x + (y*width)]
-static uint32_t COLOR_LIST[16] = {0x00FFFFFF, 0x00FF0000, 0x0000FF00, 0x000000FF,
+static uint32_t COLOR_LIST[16] = {0x00FFFFFF, 0x00FF0000, 0x0000FF00, 0x000000FF, // [colorNum]
                                   0x00FFFF00, 0x00FF00FF, 0x0000FFFF, 0x0080FF00,
                                   0x0000FF80, 0x00FF8000, 0x00FF0080, 0x000080FF,
                                   0x008000FF, 0x00808000, 0x00008080, 0x00800080};
@@ -252,16 +252,11 @@ static void EVENT_MOVE_DOWN()
   uint8_t *mask = curShape.mask;
   uint8_t xMask = 0;
   uint8_t yMask = 0;
-  for (uint8_t i = y; i < y+8; i++)
+  for (int i = y; i < y+8; i++)
   {
-    for (uint8_t j = x; j < x+8; j++)
+    for (int j = x; j < x+8; j++)
     {
-      if ((((mask[yMask]>>(7-xMask))&0x1) == 1 && board[j+((i+1)*BOARD_WIDTH)] == 1) || i == 31)
-      {
-        STOP_F = 1;
-        goto breakout;
-      }
-      if ((((mask[yMask]>>(7-xMask))&0x1) == 1 && board[j+((i+2)*BOARD_WIDTH)] == 1) || i+1 == 32)
+      if (((mask[yMask]>>(7-xMask))&0x1) == 1 && (board[j+((i+1)*BOARD_WIDTH)] == 1 || board[j+((i+2)*BOARD_WIDTH)] == 1 || i >= 31))
       {
         STOP_F = 1;
         goto breakout;

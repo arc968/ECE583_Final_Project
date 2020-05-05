@@ -112,11 +112,11 @@ static void shiftDown()
   uint8_t *mask = curShape.mask;
   uint8_t xMask = 0;
   uint8_t yMask = 0;
-  for (uint8_t i = y; i < y+8; i++)
+  for (int i = y; i < y+8; i++)
   {
-    for (uint8_t j = x; j < x+8; j++)
+    for (int j = x; j < x+8; j++)
     {
-      if (((mask[yMask]>>(7-xMask))&0x1) == 1 && (board[j+((i+1)*BOARD_WIDTH)] == 1 || board[j+((i+2)*BOARD_WIDTH)] == 1 || (i >= 31 && i-yMask == 0)))
+      if (((mask[yMask]>>(7-xMask))&0x1) == 1 && (board[j+((i+1)*BOARD_WIDTH)] == 1 || board[j+((i+2)*BOARD_WIDTH)] == 1 || i >= 31))
       {
         STOP_F = 1;
         goto breakout;
@@ -146,9 +146,9 @@ static void putShape()
   uint8_t color = curShape.color;
   uint8_t xMask = 0;
   uint8_t yMask = 0;
-  for (uint8_t i = y; i < y+8; i++)
+  for (int i = y; i < y+8; i++)
   {
-    for (uint8_t j = x; j < x+8; j++)
+    for (int j = x; j < x+8; j++)
     {
       if (board[j+(i*BOARD_WIDTH)] != 1)
       {
@@ -176,7 +176,7 @@ static void clearFlags()
 static void execEvents()
 {
   uint8_t buffSize = getBuffSize();
-  for (uint8_t i = 0; i < buffSize; i++)
+  for (int i = 0; i < buffSize; i++)
   {
     byte inByte = Serial3.read();
     if (inByte == RESTART)
@@ -217,7 +217,7 @@ static void execEvents()
 // Reset the board
 static void EVENT_RESTART()
 {
-  for (uint8_t i = 0; i < BOARD_SIZE; i++)
+  for (int i = 0; i < BOARD_SIZE; i++)
   {
     board[i] = 0;
     colors[i] = 0;
